@@ -1,49 +1,79 @@
-// PredictPro Service Worker v1.1
-const CACHE = 'predictpro-v1.1';
-const OFFLINE_URL = '/index.html';
+// PredictPro Service Worker v2.0
+// PWABuilder compliant — network-first with offline fallback
 
-// Files to cache on install
-const PRECACHE = [
+const CACHE_NAME = 'predictpro-v2';
+const OFFLINE_PAGE = '/index.html';
+
+const PRECACHE_ASSETS = [
   '/index.html',
   '/manifest.json'
 ];
 
-// Install: pre-cache core files
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then(cache => cache.addAll(PRECACHE))
+// ── INSTALL ──────────────────────────────────────────────
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_ASSETS))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activate: clear old caches
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-      ))
-      .then(() => self.clients.claim())
+// ── ACTIVATE ─────────────────────────────────────────────
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames =>
+      Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// Fetch: network-first, fallback to cache, fallback to offline page
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request)
-      .then(res => {
-        // Cache successful responses
-        if (res && res.status === 200) {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
+// ── FETCH ─────────────────────────────────────────────────
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  if (!event.request.url.startsWith('http')) return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
         }
-        return res;
+        return response;
       })
-      .catch(() =>
-        caches.match(e.request)
-          .then(cached => cached || caches.match(OFFLINE_URL))
-      )
+      .catch(() => {
+        return caches.match(event.request)
+          .then(cachedResponse => {
+            if (cachedResponse) return cachedResponse;
+            return caches.match(OFFLINE_PAGE);
+          });
+      })
+  );
+});
+
+// ── PUSH NOTIFICATIONS (ready for future use) ─────────────
+self.addEventListener('push', event => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'PredictPro';
+  const options = {
+    body: data.body || 'New predictions are ready!',
+    icon: '/icon-192x192.png',
+    badge: '/icon-72x72.png',
+    vibrate: [200, 100, 200],
+    data: { url: data.url || '/' }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url || '/')
   );
 });

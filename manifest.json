@@ -2,16 +2,20 @@
   "name": "PredictPro - Football Predictions",
   "short_name": "PredictPro",
   "description": "AI-powered football predictions, tips & accumulators for Premier League, Champions League, La Liga and more.",
+  "id": "/index.html",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#0a0f14",
   "theme_color": "#0a0f14",
   "lang": "en",
   "dir": "ltr",
   "categories": ["sports", "entertainment"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a1f14'/%3E%3Cpath d='M256 60 L380 95 L380 270 Q380 380 256 430 Q132 380 132 270 L132 95 Z' fill='%23111' stroke='%2300c85a' stroke-width='8'/%3E%3Ccircle cx='256' cy='240' r='80' fill='%23111' stroke='%2300c85a' stroke-width='6'/%3E%3Cpolygon points='256,180 278,196 270,220 242,220 234,196' fill='%2300c85a'/%3E%3Cpath d='M264,172 L248,216 L260,216 L244,266 L284,222 L272,222 Z' fill='%23f5a623'/%3E%3C/svg%3E",
@@ -44,11 +48,50 @@
       "purpose": "any"
     }
   ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home — today's predictions"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "AI match analysis"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Today's Predictions",
       "short_name": "Predictions",
-      "url": "/index.html"
+      "description": "View today's AI football predictions",
+      "url": "/index.html#home",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='16' fill='%230a1f14'/%3E%3Ccircle cx='48' cy='48' r='28' fill='%2300c85a'/%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Expert Tips",
+      "short_name": "Tips",
+      "description": "View today's expert betting tips",
+      "url": "/index.html#tips",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='16' fill='%230a1f14'/%3E%3Ccircle cx='48' cy='48' r='28' fill='%23f5a623'/%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred"
 }
