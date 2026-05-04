@@ -1,0 +1,54 @@
+{
+  "name": "PredictPro - Football Predictions",
+  "short_name": "PredictPro",
+  "description": "AI-powered football predictions, tips & accumulators for Premier League, Champions League, La Liga and more.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0f14",
+  "theme_color": "#0a0f14",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["sports", "entertainment"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230a1f14'/%3E%3Cpath d='M256 60 L380 95 L380 270 Q380 380 256 430 Q132 380 132 270 L132 95 Z' fill='%23111' stroke='%2300c85a' stroke-width='8'/%3E%3Ccircle cx='256' cy='240' r='80' fill='%23111' stroke='%2300c85a' stroke-width='6'/%3E%3Cpolygon points='256,180 278,196 270,220 242,220 234,196' fill='%2300c85a'/%3E%3Cpath d='M264,172 L248,216 L260,216 L244,266 L284,222 L272,222 Z' fill='%23f5a623'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='30' fill='%230a1f14'/%3E%3Cpath d='M96 22 L142 35 L142 101 Q142 143 96 162 Q50 143 50 101 L50 35 Z' fill='%23111' stroke='%2300c85a' stroke-width='3'/%3E%3Ccircle cx='96' cy='90' r='30' fill='%23111' stroke='%2300c85a' stroke-width='2.5'/%3E%3Cpolygon points='96,68 104,74 101,83 91,83 88,74' fill='%2300c85a'/%3E%3Cpath d='M99,65 L93,81 L97,81 L91,100 L107,83 L103,83 Z' fill='%23f5a623'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 144 144'%3E%3Crect width='144' height='144' rx='22' fill='%230a1f14'/%3E%3Cpath d='M72 16 L106 26 L106 76 Q106 108 72 122 Q38 108 38 76 L38 26 Z' fill='%23111' stroke='%2300c85a' stroke-width='2.5'/%3E%3Ccircle cx='72' cy='68' r='22' fill='%23111' stroke='%2300c85a' stroke-width='2'/%3E%3Cpolygon points='72,51 79,56 76,63 68,63 65,56' fill='%2300c85a'/%3E%3Cpath d='M74,49 L69,61 L73,61 L68,75 L80,63 L76,63 Z' fill='%23f5a623'/%3E%3C/svg%3E",
+      "sizes": "144x144",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Crect width='96' height='96' rx='16' fill='%230a1f14'/%3E%3Cpath d='M48 10 L72 18 L72 52 Q72 72 48 80 Q24 72 24 52 L24 18 Z' fill='%23111' stroke='%2300c85a' stroke-width='2'/%3E%3Ccircle cx='48' cy='45' r='16' fill='%23111' stroke='%2300c85a' stroke-width='1.5'/%3E%3Cpolygon points='48,34 54,38 52,44 44,44 42,38' fill='%2300c85a'/%3E%3Cpath d='M50,32 L46,42 L49,42 L45,52 L55,43 L52,43 Z' fill='%23f5a623'/%3E%3C/svg%3E",
+      "sizes": "96x96",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Crect width='72' height='72' rx='12' fill='%230a1f14'/%3E%3Cpath d='M36 8 L54 14 L54 40 Q54 54 36 60 Q18 54 18 40 L18 14 Z' fill='%23111' stroke='%2300c85a' stroke-width='1.5'/%3E%3Ccircle cx='36' cy='34' r='12' fill='%23111' stroke='%2300c85a' stroke-width='1.5'/%3E%3Cpolygon points='36,26 41,29 39,34 33,34 31,29' fill='%2300c85a'/%3E%3Cpath d='M37,24 L34,32 L37,32 L34,40 L41,33 L38,33 Z' fill='%23f5a623'/%3E%3C/svg%3E",
+      "sizes": "72x72",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Predictions",
+      "short_name": "Predictions",
+      "url": "/index.html"
+    }
+  ]
+}

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0f14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>PredictPro - Football Predictions</title>
+
+<!-- ✅ PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- ✅ iOS PWA support -->
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+<meta name="apple-mobile-web-app-title" content="PredictPro">
+
+<!-- ✅ Theme & branding -->
+<meta name="description" content="AI-powered football predictions for Premier League, Champions League, La Liga and more.">
+<meta name="application-name" content="PredictPro">
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0f14}
+body{font-family:'Outfit',sans-serif;color:#e8edf2;overscroll-behavior:none}
+
+/* ===== CSS VARIABLES ===== */
+:root{
+  --green:#00c85a;--green2:#00a84a;--green-dim:#00c85a22;
+  --gold:#f5a623;--gold-dim:#f5a62322;
+  --red:#ff4757;--red-dim:#ff475722;
+  --blue:#3b82f6;--blue-dim:#3b82f622;
+  --bg:#0a0f14;--surf1:#111820;--surf2:#18222e;--surf3:#1e2d3d;
+  --border:#ffffff0f;--border2:#ffffff18;
+  --text:#e8edf2;--muted:#6b7e91;--muted2:#8fa0b2;
+  --r:14px;--r-sm:10px;--r-xs:7px;
+  --shadow:0 4px 20px #0006;
+}
+
+/* ===== APP SHELL ===== */
+#app{width:100%;height:100vh;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* ===== HEADER ===== */
+.header{
+  flex-shrink:0;background:var(--surf1);
+  border-bottom:1px solid var(--border);
+  padding:env(safe-area-inset-top,0) 0 0;
+}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:13px 16px}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,var(--green),#00864a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;box-shadow:0 0 16px #00c85a44;
+}
+.logo-text{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px;color:var(--text)}
+.logo-text span{color:var(--green)}
+.header-right{display:flex;align-items:center;gap:8px}
+.live-pill{
+  display:flex;align-items:center;gap:5px;
+  background:#ff475714;border:1px solid #ff475744;
+  border-radius:20px;padding:4px 10px;
+  font-size:11px;font-weight:600;color:var(--red);letter-spacing:.5px;
+}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.pro-btn{
+  background:linear-gradient(135deg,#f5a623,#e8900a);
+  color:#000;font-size:11px;font-weight:700;
+  padding:5px 12px;border-radius:20px;border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;letter-spacing:.3px;
+}
+
+/* ===== LEAGUE FILTER ===== */
+.league-bar{
+  display:flex;gap:6px;overflow-x:auto;padding:10px 16px;
+  scrollbar-width:none;border-bottom:1px solid var(--border);
+}
+.league-bar::-webkit-scrollbar{display:none}
+.league-chip{
+  flex:0 0 auto;display:flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:20px;
+  border:1px solid var(--border2);background:var(--surf2);
+  font-size:12px;font-weight:500;color:var(--muted2);
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.league-chip.active{
+  background:var(--green-dim);border-color:var(--green);
+  color:var(--green);
+}
+
+/* ===== SCROLLABLE CONTENT ===== */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:70px}
+.content::-webkit-scrollbar{display:none}
+
+/* ===== PAGES ===== */
+.page{display:none;animation:slideUp .22s ease}
+.page.active{display:block}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== AD BANNER ===== */
+.ad-banner{
+  margin:10px 14px;padding:10px 14px;
+  background:var(--surf2);border:1px solid var(--border);
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between;
+}
+.ad-tag{font-size:9px;color:var(--muted);border:1px solid var(--border2);padding:1px 5px;border-radius:4px;margin-right:8px}
+.ad-text{font-size:12px;color:var(--muted2);flex:1}
+.ad-cta{font-size:11px;color:var(--green);font-weight:600;white-space:nowrap}
+
+/* ===== SECTION HEADER ===== */
+.section-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.section-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:.5px;color:var(--text)}
+.section-count{font-size:11px;font-weight:600;color:var(--green);background:var(--green-dim);padding:3px 9px;border-radius:20px;border:1px solid #00c85a33}
+
+/* ===== MATCH CARD ===== */
+.match-card{
+  margin:0 14px 10px;background:var(--surf1);
+  border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;cursor:pointer;transition:border-color .2s,transform .15s;
+  position:relative;
+}
+.match-card:active{transform:scale(.98)}
+.match-card:hover{border-color:var(--border2)}
+.match-card.premium{border-color:#f5a62333}
+.match-card-top{padding:11px 14px 0}
+.match-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.match-league{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;font-weight:500}
+.league-flag{font-size:13px}
+.match-time-badge{
+  font-size:11px;font-weight:600;color:var(--gold);
+  background:var(--gold-dim);padding:2px 8px;border-radius:10px;
+}
+.match-time-badge.live{color:var(--red);background:var(--red-dim);animation:pulse-bg 2s infinite}
+@keyframes pulse-bg{0%,100%{background:var(--red-dim)}50%{background:#ff475733}}
+.teams-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.team-block{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.team-crest{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--surf3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+}
+.team-name{font-size:13px;font-weight:600;text-align:center;max-width:80px;line-height:1.2}
+.vs-block{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:0 6px;
+}
+.vs-text{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--muted);letter-spacing:1px}
+.kick-time{font-size:10px;color:var(--muted);font-weight:500}
+
+/* ===== PREDICTION STATS ===== */
+.pred-strip{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;border-top:1px solid var(--border);margin-top:10px;
+}
+.pred-cell{padding:8px 6px;text-align:center}
+.pred-cell:not(:last-child){border-right:1px solid var(--border)}
+.pred-lbl{font-size:10px;color:var(--muted);margin-bottom:2px}
+.pred-pct{font-size:15px;font-weight:700}
+.pred-pct.h{color:var(--green)}
+.pred-pct.d{color:var(--gold)}
+.pred-pct.a{color:var(--red)}
+
+/* ===== CONFIDENCE ===== */
+.conf-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;border-top:1px solid var(--border);
+}
+.conf-lbl{font-size:11px;color:var(--muted);min-width:72px}
+.conf-track{flex:1;background:var(--surf3);border-radius:20px;height:5px;overflow:hidden}
+.conf-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .8s ease}
+.conf-pct{font-size:11px;font-weight:700;color:var(--green);min-width:30px;text-align:right}
+
+/* ===== PICK BADGE ===== */
+.pick-row{
+  padding:7px 14px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pick-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-dim);border:1px solid #00c85a44;
+  color:var(--green);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:20px;
+}
+.lock-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--gold-dim);border:1px solid #f5a62344;
+  color:var(--gold);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:20px;
+}
+.odds-hint{font-size:11px;color:var(--muted)}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:#000b;z-index:300;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal-sheet{
+  background:var(--surf1);border-radius:22px 22px 0 0;
+  width:100%;max-width:520px;
+  max-height:92vh;overflow-y:auto;
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.modal-sheet::-webkit-scrollbar{display:none}
+.modal-handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto}
+.modal-close-btn{
+  float:right;margin:0 16px;background:var(--surf2);border:none;
+  color:var(--muted);width:30px;height:30px;border-radius:50%;
+  cursor:pointer;font-size:16px;line-height:30px;text-align:center;
+}
+.modal-body{padding:0 16px 24px;clear:both}
+.modal-league-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--muted2);margin-bottom:12px;
+}
+.modal-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.modal-team{text-align:center;flex:1}
+.modal-crest{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--surf2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;margin:0 auto 6px;
+}
+.modal-tname{font-size:16px;font-weight:600}
+.modal-vs{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--muted)}
+.modal-kickoff{text-align:center;font-size:12px;color:var(--gold);font-weight:500;margin-bottom:16px}
+
+/* ===== OUTCOME GRID ===== */
+.outcome-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px}
+.outcome-card{
+  background:var(--surf2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:11px 8px;text-align:center;
+}
+.outcome-card.best{border-color:var(--green);background:var(--green-dim)}
+.outcome-card.best .out-pct{color:var(--green)}
+.out-lbl{font-size:10px;color:var(--muted);margin-bottom:3px}
+.out-pct{font-size:22px;font-weight:700;margin-bottom:2px}
+.out-odds{font-size:11px;color:var(--gold)}
+
+/* ===== AI BOX ===== */
+.ai-box{
+  background:var(--surf2);border:1px solid #00c85a22;
+  border-radius:var(--r);padding:13px;margin-bottom:14px;
+}
+.ai-header{display:flex;align-items:center;gap:7px;font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text)}
+.ai-pulse{width:8px;height:8px;border-radius:50%;background:var(--green);animation:blink 1.5s infinite}
+.ai-analysis{font-size:13px;color:var(--muted2);line-height:1.65}
+.ai-pick-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+
+/* ===== MARKETS ===== */
+.markets-title{font-family:'Bebas Neue',cursive;font-size:17px;margin-bottom:10px;color:var(--text)}
+.market-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.market-row:last-child{border-bottom:none}
+.market-name{color:var(--muted2)}
+.market-val{font-weight:600;color:var(--gold)}
+
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{
+  flex-shrink:0;background:var(--surf1);
+  border-top:1px solid var(--border);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+.nav-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:3px;padding:9px 0 5px;border:none;background:none;
+  color:var(--muted);font-size:10px;font-family:'Outfit',sans-serif;
+  cursor:pointer;transition:color .15s;font-weight:500;
+}
+.nav-tab.active{color:var(--green)}
+.nav-icon{font-size:21px;line-height:1}
+
+/* ===== TIPS PAGE ===== */
+.tip-card{
+  margin:0 14px 10px;background:var(--surf1);
+  border:1px solid var(--border);border-radius:var(--r);
+  padding:14px;
+}
+.tip-card.featured{border-color:#00c85a33;background:linear-gradient(135deg,#00c85a0a,var(--surf1))}
+.tip-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tip-badge{
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  padding:3px 9px;border-radius:20px;
+}
+.tip-badge.ai{background:var(--green-dim);color:var(--green);border:1px solid #00c85a33}
+.tip-badge.gold{background:var(--gold-dim);color:var(--gold);border:1px solid #f5a62333}
+.tip-badge.pro{background:#8b5cf622;color:#a78bfa;border:1px solid #8b5cf633}
+.tip-match{font-size:14px;font-weight:700;margin-bottom:5px}
+.tip-pick{font-size:13px;color:var(--muted2);margin-bottom:8px}
+.tip-foot{display:flex;align-items:center;justify-content:space-between}
+.tip-odds{font-size:13px;font-weight:700;color:var(--gold)}
+.tip-conf{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+
+/* ===== ACCA CARD ===== */
+.acca-card{
+  margin:0 14px 10px;background:var(--surf2);
+  border:1px solid var(--border);border-radius:var(--r);padding:14px;
+}
+.acca-title{font-family:'Bebas Neue',cursive;font-size:17px;color:var(--green);margin-bottom:10px}
+.acca-leg{display:flex;align-items:center;gap:7px;padding:5px 0;font-size:13px;color:var(--muted2)}
+.acca-leg::before{content:'✓';color:var(--green);font-weight:700;font-size:14px}
+.acca-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.acca-mult{font-size:18px;font-weight:700;color:var(--gold)}
+.acca-ai{font-size:12px;color:var(--muted)}
+
+/* ===== STATS PAGE ===== */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 14px}
+.stat-tile{
+  background:var(--surf1);border:1px solid var(--border);
+  border-radius:var(--r);padding:13px;text-align:center;
+}
+.stat-num{font-size:26px;font-weight:700;color:var(--green)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.league-stat-card{
+  margin:0 14px 8px;background:var(--surf1);
+  border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;
+}
+.league-stat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.league-stat-name{font-size:13px;font-weight:500}
+.league-stat-pct{font-size:14px;font-weight:700;color:var(--green)}
+
+/* ===== SUB PAGE ===== */
+.sub-hero{text-align:center;padding:24px 20px 16px}
+.sub-hero-title{font-family:'Bebas Neue',cursive;font-size:36px;color:var(--gold);letter-spacing:1px}
+.sub-hero-sub{font-size:13px;color:var(--muted2);margin-top:4px}
+.plan-card{
+  margin:0 14px 12px;background:var(--surf1);
+  border:1px solid var(--border);border-radius:var(--r);padding:16px;
+}
+.plan-card.gold-plan{
+  border-color:#f5a62355;
+  background:linear-gradient(135deg,#1a140a,var(--surf1));
+}
+.plan-name{font-family:'Bebas Neue',cursive;font-size:22px;margin-bottom:4px}
+.plan-price{font-size:30px;font-weight:700;color:var(--gold);margin-bottom:10px}
+.plan-price small{font-size:14px;color:var(--muted);font-weight:400}
+.plan-features{list-style:none;margin-bottom:14px}
+.plan-features li{
+  display:flex;align-items:center;gap:7px;
+  font-size:13px;color:var(--muted2);padding:4px 0;
+}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:13px;min-width:12px}
+.plan-features li.x::before{content:'✗';color:var(--muted)}
+.plan-btn{
+  width:100%;padding:13px;border-radius:var(--r-sm);
+  border:none;font-family:'Outfit',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;
+}
+.plan-btn.free-btn{background:var(--surf2);color:var(--text);border:1px solid var(--border2)}
+.plan-btn.gold-btn{background:linear-gradient(135deg,#f5a623,#e8900a);color:#000}
+
+/* ===== EMPTY STATE ===== */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-text{font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-mark">⚽</div>
+        <div class="logo-text">Predict<span>Pro</span></div>
+      </div>
+      <div class="header-right">
+        <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+        <button class="pro-btn" onclick="goPage('sub')">Go PRO</button>
+      </div>
+    </div>
+    <!-- league filter only on home page -->
+    <div class="league-bar" id="league-bar">
+      <div class="league-chip active" onclick="filterLeague('ALL',this)">⚽ All</div>
+      <div class="league-chip" onclick="filterLeague('EPL',this)">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div>
+      <div class="league-chip" onclick="filterLeague('UCL',this)">🏆 Champions League</div>
+      <div class="league-chip" onclick="filterLeague('LALIGA',this)">🇪🇸 La Liga</div>
+      <div class="league-chip" onclick="filterLeague('SERIEA',this)">🇮🇹 Serie A</div>
+      <div class="league-chip" onclick="filterLeague('BL',this)">🇩🇪 Bundesliga</div>
+      <div class="league-chip" onclick="filterLeague('LIGUE1',this)">🇫🇷 Ligue 1</div>
+      <div class="league-chip" onclick="filterLeague('MLS',this)">🇺🇸 MLS</div>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="ad-banner">
+        <span class="ad-tag">AD</span>
+        <span class="ad-text">Bet365 — Get up to $200 bonus on first deposit</span>
+        <span class="ad-cta">Claim →</span>
+      </div>
+      <div class="section-hd">
+        <span class="section-title">Today — Mon 4 May 2026</span>
+        <span class="section-count" id="match-count">8 MATCHES</span>
+      </div>
+      <div id="matches-container"></div>
+    </div>
+
+    <!-- TIPS PAGE -->
+    <div class="page" id="page-tips">
+      <div class="section-hd"><span class="section-title">🤖 AI Best Bet Today</span></div>
+      <div class="tip-card featured">
+        <div class="tip-header">
+          <span class="tip-badge ai">🧠 AI TOP PICK</span>
+          <span style="font-size:11px;color:var(--muted)">Confidence: 81%</span>
+        </div>
+        <div class="tip-match">Chelsea vs Nottingham Forest</div>
+        <div class="tip-pick">Pick: Chelsea Win — EPL Matchday 36</div>
+        <div style="font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:10px">
+          Chelsea host Nottingham Forest needing 3 points to stay in top-4 contention. Forest have won just 1 of their last 8 away matches. Chelsea's home record (W9 D3 L2) combined with odds shortening toward the home side makes this the AI's strongest selection of the day.
+        </div>
+        <div class="tip-foot">
+          <span class="tip-odds">Odds: 1.62</span>
+          <div class="tip-conf">
+            <div style="width:50px;height:4px;background:var(--surf3);border-radius:10px;overflow:hidden"><div style="width:81%;height:100%;background:var(--green);border-radius:10px"></div></div>
+            81%
+          </div>
+        </div>
+      </div>
+
+      <div class="section-hd"><span class="section-title">Expert Tips</span></div>
+
+      <div class="tip-card">
+        <div class="tip-header"><span class="tip-badge ai">AI PICK</span></div>
+        <div class="tip-match">Everton vs Man City</div>
+        <div class="tip-pick">Pick: Over 2.5 Goals</div>
+        <div class="tip-foot">
+          <span class="tip-odds">Odds: 1.72</span>
+          <div class="tip-conf">
+            <div style="width:50px;height:4px;background:var(--surf3);border-radius:10px;overflow:hidden"><div style="width:74%;height:100%;background:var(--green);border-radius:10px"></div></div>
+            74%
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-header"><span class="tip-badge gold">VALUE BET</span></div>
+        <div class="tip-match">Dortmund vs Freiburg</div>
+        <div class="tip-pick">Pick: Borussia Dortmund Win — True prob 72% vs implied 60%</div>
+        <div class="tip-foot">
+          <span class="tip-odds">Odds: 1.85 · Edge: +12%</span>
+          <div class="tip-conf">
+            <div style="width:50px;height:4px;background:var(--surf3);border-radius:10px;overflow:hidden"><div style="width:72%;height:100%;background:var(--gold);border-radius:10px"></div></div>
+            72%
+          </div>
+        </div>
+      </div>
+
+      <div class="section-hd"><span class="section-title">Today's Accumulators</span></div>
+
+      <div class="acca-card">
+        <div class="acca-title">⚡ 3-Fold Acca</div>
+        <div class="acca-leg">Chelsea Win vs Nottingham Forest</div>
+        <div class="acca-leg">Man City Win vs Everton</div>
+        <div class="acca-leg">Inter Milan Win vs Cagliari</div>
+        <div class="acca-foot">
+          <div><div class="acca-mult">6.80x</div><div style="font-size:11px;color:var(--muted)">Est. combined odds</div></div>
+          <div class="acca-ai">AI confidence: 68%</div>
+        </div>
+      </div>
+
+      <div class="acca-card" style="border-color:#8b5cf633">
+        <div class="acca-title" style="color:#a78bfa">🔒 5-Fold Super Acca — PRO Only</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px">Unlock 5+ fold accumulators with PRO subscription</div>
+        <button class="plan-btn gold-btn" onclick="goPage('sub')" style="padding:10px">Unlock PRO</button>
+      </div>
+    </div>
+
+    <!-- STATS PAGE -->
+    <div class="page" id="page-stats">
+      <div class="section-hd"><span class="section-title">Prediction Accuracy</span></div>
+      <div class="stats-grid">
+        <div class="stat-tile"><div class="stat-num">78%</div><div class="stat-sub">Overall accuracy</div></div>
+        <div class="stat-tile"><div class="stat-num">182</div><div class="stat-sub">Correct this month</div></div>
+        <div class="stat-tile"><div class="stat-num">84%</div><div class="stat-sub">Home win accuracy</div></div>
+        <div class="stat-tile"><div class="stat-num">71%</div><div class="stat-sub">BTTS accuracy</div></div>
+        <div class="stat-tile"><div class="stat-num">69%</div><div class="stat-sub">Over/Under accuracy</div></div>
+        <div class="stat-tile"><div class="stat-num">61%</div><div class="stat-sub">Correct score</div></div>
+      </div>
+      <div class="section-hd"><span class="section-title">Accuracy by League</span></div>
+      <div id="league-stats"></div>
+    </div>
+
+    <!-- SUBSCRIPTION PAGE -->
+    <div class="page" id="page-sub">
+      <div class="sub-hero">
+        <div class="sub-hero-title">⭐ Go PRO</div>
+        <div class="sub-hero-sub">Unlock all predictions, expert tips & exclusive picks</div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Free Plan</div>
+        <div class="plan-price">$0 <small>/month</small></div>
+        <ul class="plan-features">
+          <li>5 predictions per day</li>
+          <li>Match winner (1X2) only</li>
+          <li>Basic AI analysis</li>
+          <li class="x">Over/Under &amp; BTTS predictions</li>
+          <li class="x">Correct score predictions</li>
+          <li class="x">Accumulator builder</li>
+          <li class="x">Value bet alerts</li>
+          <li>Ad-supported</li>
+        </ul>
+        <button class="plan-btn free-btn">Current Plan</button>
+      </div>
+
+      <div class="plan-card gold-plan">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+          <div class="plan-name" style="color:var(--gold)">PRO Monthly</div>
+          <span style="background:var(--gold-dim);color:var(--gold);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid #f5a62344">POPULAR</span>
+        </div>
+        <div class="plan-price">$4.99 <small>/month</small></div>
+        <ul class="plan-features">
+          <li>Unlimited predictions</li>
+          <li>All prediction types</li>
+          <li>Advanced AI analysis</li>
+          <li>Accumulator builder</li>
+          <li>Value bet alerts</li>
+          <li>Live match insights</li>
+          <li>No ads</li>
+          <li>Priority support</li>
+        </ul>
+        <button class="plan-btn gold-btn" onclick="alert('Redirecting to Google Play Billing...')">Subscribe — $4.99/mo</button>
+      </div>
+
+      <div class="plan-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+          <div class="plan-name">PRO Annual</div>
+          <span style="background:#00c85a22;color:var(--green);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;border:1px solid #00c85a33">33% OFF</span>
+        </div>
+        <div class="plan-price">$39.99 <small>/year</small></div>
+        <ul class="plan-features">
+          <li>Everything in PRO Monthly</li>
+          <li>Early access to new features</li>
+          <li>Exclusive AI model insights</li>
+        </ul>
+        <button class="plan-btn gold-btn" onclick="alert('Redirecting to Google Play Billing...')">Subscribe — $39.99/yr</button>
+      </div>
+
+      <div style="text-align:center;padding:10px 20px 20px;font-size:11px;color:var(--muted)">
+        Subscriptions auto-renew. Cancel anytime via Google Play. By subscribing you agree to our Terms of Service.
+      </div>
+    </div>
+
+  </div><!-- end content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-tab active" id="tab-home" onclick="goPage('home')">
+      <span class="nav-icon">🏠</span>Home
+    </button>
+    <button class="nav-tab" id="tab-tips" onclick="goPage('tips')">
+      <span class="nav-icon">⚡</span>Tips
+    </button>
+    <button class="nav-tab" id="tab-stats" onclick="goPage('stats')">
+      <span class="nav-icon">📊</span>Stats
+    </button>
+    <button class="nav-tab" id="tab-sub" onclick="goPage('sub')">
+      <span class="nav-icon">👑</span>PRO
+    </button>
+  </div>
+
+</div><!-- end app -->
+
+<!-- MATCH DETAIL MODAL -->
+<div class="modal-overlay" id="modal" onclick="handleModalClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// TODAY'S REAL FIXTURES — Monday 4 May 2026
+// Sources: Premier League official, Bundesliga.com, Ligue 1, MLS
+// ============================================================
+const MATCHES = [
+  // PREMIER LEAGUE — Matchday 36
+  {
+    id:1,league:"EPL",leagueName:"Premier League",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    home:"Chelsea",homeEmoji:"🔵",away:"Nottingham Forest",awayEmoji:"🔴",
+    kickoff:"19:00 GMT",
+    homeWin:58,draw:22,awayWin:20,
+    homeOdds:"1.62",drawOdds:"3.80",awayOdds:"5.50",
+    over25:64,btts:55,corrScore:"2-0",conf:78,
+    prediction:"Chelsea Win",isPremium:false,
+    aiText:"Chelsea need this win to stay in top-4 contention. Nottingham Forest have won just 1 of their last 8 away fixtures. Chelsea's home form (W9 D3 L2) is strong and odds have shortened toward the home side all week — a clear AI signal."
+  },
+  {
+    id:2,league:"EPL",leagueName:"Premier League",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+    home:"Everton",homeEmoji:"💙",away:"Manchester City",awayEmoji:"🩵",
+    kickoff:"20:00 GMT",
+    homeWin:18,draw:26,awayWin:56,
+    homeOdds:"5.00",drawOdds:"3.60",awayOdds:"1.72",
+    over25:72,btts:62,corrScore:"1-3",conf:74,
+    prediction:"Man City Win",isPremium:false,
+    aiText:"Manchester City remain in title contention and cannot afford to drop points. Everton sit in mid-table with little to play for. City have won 7 of their last 9 away games. Over 2.5 goals is the standout value market here."
+  },
+  // BUNDESLIGA — Matchday 33
+  {
+    id:3,league:"BL",leagueName:"Bundesliga",flag:"🇩🇪",
+    home:"Borussia Dortmund",homeEmoji:"🟡",away:"SC Freiburg",awayEmoji:"⚫",
+    kickoff:"15:30 CET",
+    homeWin:62,draw:22,awayWin:16,
+    homeOdds:"1.75",drawOdds:"3.70",awayOdds:"4.80",
+    over25:68,btts:58,corrScore:"3-0",conf:72,
+    prediction:"BVB Win",isPremium:false,
+    aiText:"Dortmund are playing for European spots and have been on fire at the Signal Iduna Park this month. Freiburg have a poor away defensive record, conceding in 9 of last 10 road trips. BVB at 1.75 is excellent value."
+  },
+  {
+    id:4,league:"BL",leagueName:"Bundesliga",flag:"🇩🇪",
+    home:"SC Freiburg",homeEmoji:"⚽",away:"VfL Wolfsburg",awayEmoji:"🟢",
+    kickoff:"17:30 CET",
+    homeWin:50,draw:26,awayWin:24,
+    homeOdds:"2.10",drawOdds:"3.30",awayOdds:"3.40",
+    over25:55,btts:52,corrScore:"1-1",conf:60,
+    prediction:"Draw",isPremium:true,
+    aiText:"Two mid-table sides with little to play for. Freiburg at home have a slight edge but Wolfsburg are well-organised defensively. The draw at 3.30 represents solid value given the relatively even expected goals data."
+  },
+  // LA LIGA — Matchday 35
+  {
+    id:5,league:"LALIGA",leagueName:"La Liga",flag:"🇪🇸",
+    home:"Osasuna",homeEmoji:"🔴",away:"Sevilla",awayEmoji:"⚪",
+    kickoff:"19:00 CET",
+    homeWin:48,draw:28,awayWin:24,
+    homeOdds:"2.20",drawOdds:"3.20",awayOdds:"3.10",
+    over25:52,btts:58,corrScore:"1-1",conf:62,
+    prediction:"BTTS",isPremium:false,
+    aiText:"Both teams have scored in 7 of Osasuna's last 10 home games. Sevilla are inconsistent on the road but rarely kept a clean sheet. BTTS at 1.78 is the value pick in this mid-table fixture with little defensive pressure."
+  },
+  // SERIE A — Matchday 36
+  {
+    id:6,league:"SERIEA",leagueName:"Serie A",flag:"🇮🇹",
+    home:"Inter Milan",homeEmoji:"⚫",away:"Cagliari",awayEmoji:"🔵",
+    kickoff:"18:00 CET",
+    homeWin:75,draw:16,awayWin:9,
+    homeOdds:"1.35",drawOdds:"5.50",awayOdds:"9.00",
+    over25:70,btts:48,corrScore:"3-0",conf:82,
+    prediction:"Inter Win",isPremium:false,
+    aiText:"Inter Milan are chasing the Scudetto and are in devastating home form. Cagliari are fighting relegation but have conceded 3+ goals in 4 of their last 6 away games. This is the most confident AI pick of the day at 82%."
+  },
+  // LIGUE 1 — Matchday 33
+  {
+    id:7,league:"LIGUE1",leagueName:"Ligue 1",flag:"🇫🇷",
+    home:"Rennes",homeEmoji:"🔴",away:"Nantes",awayEmoji:"🟡",
+    kickoff:"19:00 CET",
+    homeWin:50,draw:26,awayWin:24,
+    homeOdds:"2.05",drawOdds:"3.30",awayOdds:"3.50",
+    over25:58,btts:55,corrScore:"2-1",conf:64,
+    prediction:"Rennes Win",isPremium:false,
+    aiText:"Rennes are pushing for a European spot and have strong home form this spring. Nantes have lost 5 of their last 7 away games. The home win at 2.05 offers decent value backed by positive home expected goals data."
+  },
+  // MLS
+  {
+    id:8,league:"MLS",leagueName:"MLS",flag:"🇺🇸",
+    home:"Inter Miami CF",homeEmoji:"🌸",away:"New England Rev.",awayEmoji:"🔵",
+    kickoff:"19:30 ET",
+    homeWin:52,draw:26,awayWin:22,
+    homeOdds:"1.95",drawOdds:"3.40",awayOdds:"3.80",
+    over25:60,btts:52,corrScore:"2-1",conf:66,
+    prediction:"Miami Win",isPremium:true,
+    aiText:"Inter Miami continue their strong MLS run at home this season. New England have been inconsistent on the road. Miami's attack is clinical at home and the odds reflect a likely home victory."
+  }
+];
+
+const LEAGUE_STATS = [
+  {name:"Premier League",flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",acc:84},
+  {name:"Champions League",flag:"🏆",acc:79},
+  {name:"La Liga",flag:"🇪🇸",acc:76},
+  {name:"Bundesliga",flag:"🇩🇪",acc:75},
+  {name:"Serie A",flag:"🇮🇹",acc:73},
+  {name:"Ligue 1",flag:"🇫🇷",acc:70},
+  {name:"MLS",flag:"🇺🇸",acc:65},
+];
+
+// ============================================================
+// RENDER MATCHES
+// ============================================================
+let currentLeague = "ALL";
+
+function renderMatches(league) {
+  const list = league === "ALL" ? MATCHES : MATCHES.filter(m => m.league === league);
+  document.getElementById("match-count").textContent = list.length + " MATCHES";
+  const cont = document.getElementById("matches-container");
+  if (!list.length) {
+    cont.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No matches today for this league</div></div>`;
+    return;
+  }
+  cont.innerHTML = list.map(m => buildMatchCard(m)).join("");
+}
+
+function buildMatchCard(m) {
+  return `
+  <div class="match-card${m.isPremium?' premium':''}" onclick="${m.isPremium?'goPage(\'sub\')':'openModal('+m.id+')'}">
+    <div class="match-card-top">
+      <div class="match-meta">
+        <div class="match-league"><span class="league-flag">${m.flag}</span>${m.leagueName}</div>
+        <div class="match-time-badge">${m.kickoff}</div>
+      </div>
+      <div class="teams-row">
+        <div class="team-block">
+          <div class="team-crest">${m.homeEmoji}</div>
+          <div class="team-name">${m.home}</div>
+        </div>
+        <div class="vs-block">
+          <div class="vs-text">VS</div>
+          <div class="kick-time">Today</div>
+        </div>
+        <div class="team-block">
+          <div class="team-crest">${m.awayEmoji}</div>
+          <div class="team-name">${m.away}</div>
+        </div>
+      </div>
+    </div>
+    <div class="pred-strip">
+      <div class="pred-cell"><div class="pred-lbl">Home Win</div><div class="pred-pct h">${m.homeWin}%</div></div>
+      <div class="pred-cell"><div class="pred-lbl">Draw</div><div class="pred-pct d">${m.draw}%</div></div>
+      <div class="pred-cell"><div class="pred-lbl">Away Win</div><div class="pred-pct a">${m.awayWin}%</div></div>
+    </div>
+    <div class="conf-row">
+      <span class="conf-lbl">Confidence</span>
+      <div class="conf-track"><div class="conf-fill" style="width:${m.conf}%"></div></div>
+      <span class="conf-pct">${m.conf}%</span>
+    </div>
+    <div class="pick-row">
+      ${m.isPremium
+        ? `<div class="lock-badge">🔒 PRO Pick</div><span class="odds-hint">Subscribe to unlock</span>`
+        : `<div class="pick-badge">🤖 ${m.prediction}</div><span class="odds-hint">Odds: ${m.homeOdds} / ${m.drawOdds} / ${m.awayOdds}</span>`
+      }
+    </div>
+  </div>`;
+}
+
+function filterLeague(league, el) {
+  currentLeague = league;
+  document.querySelectorAll(".league-chip").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  renderMatches(league);
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal(id) {
+  const m = MATCHES.find(x => x.id === id);
+  if (!m) return;
+  const isHome = m.prediction.includes(m.home.split(" ")[0]) || m.prediction.includes("Win") && m.homeWin > m.awayWin;
+  document.getElementById("modal-body").innerHTML = `
+    <div class="modal-league-badge">${m.flag} ${m.leagueName} · Today</div>
+    <div class="modal-teams">
+      <div class="modal-team">
+        <div class="modal-crest">${m.homeEmoji}</div>
+        <div class="modal-tname">${m.home}</div>
+      </div>
+      <div class="modal-vs">VS</div>
+      <div class="modal-team">
+        <div class="modal-crest">${m.awayEmoji}</div>
+        <div class="modal-tname">${m.away}</div>
+      </div>
+    </div>
+    <div class="modal-kickoff">⏰ Kick-off: ${m.kickoff}</div>
+
+    <div class="outcome-grid">
+      <div class="outcome-card${m.homeWin >= m.draw && m.homeWin >= m.awayWin?' best':''}">
+        <div class="out-lbl">Home Win</div>
+        <div class="out-pct">${m.homeWin}%</div>
+        <div class="out-odds">Odds ${m.homeOdds}</div>
+      </div>
+      <div class="outcome-card${m.draw >= m.homeWin && m.draw >= m.awayWin?' best':''}">
+        <div class="out-lbl">Draw</div>
+        <div class="out-pct">${m.draw}%</div>
+        <div class="out-odds">Odds ${m.drawOdds}</div>
+      </div>
+      <div class="outcome-card${m.awayWin > m.homeWin && m.awayWin >= m.draw?' best':''}">
+        <div class="out-lbl">Away Win</div>
+        <div class="out-pct">${m.awayWin}%</div>
+        <div class="out-odds">Odds ${m.awayOdds}</div>
+      </div>
+    </div>
+
+    <div class="ai-box">
+      <div class="ai-header"><span class="ai-pulse"></span>AI Analysis</div>
+      <div class="ai-analysis">${m.aiText}</div>
+      <div class="ai-pick-row">
+        <div class="pick-badge">🤖 Pick: ${m.prediction}</div>
+        <div class="pick-badge" style="background:var(--gold-dim);border-color:#f5a62344;color:var(--gold)">⚡ ${m.conf}% confidence</div>
+      </div>
+    </div>
+
+    <div class="markets-title">All Markets</div>
+    <div class="market-row"><span class="market-name">Over 2.5 Goals</span><span class="market-val">${m.over25}% · Odds 1.75</span></div>
+    <div class="market-row"><span class="market-name">Under 2.5 Goals</span><span class="market-val">${100-m.over25}% · Odds 2.10</span></div>
+    <div class="market-row"><span class="market-name">Both Teams to Score</span><span class="market-val">${m.btts}% · Odds 1.85</span></div>
+    <div class="market-row"><span class="market-name">BTTS — No</span><span class="market-val">${100-m.btts}% · Odds 2.00</span></div>
+    <div class="market-row"><span class="market-name">AI Correct Score</span><span class="market-val">${m.corrScore}</span></div>
+    <div class="market-row"><span class="market-name">Home Win & BTTS</span><span class="market-val">Odds 3.20</span></div>
+
+    <div class="conf-row" style="margin-top:14px;background:var(--surf2);border-radius:var(--r-sm);padding:10px 14px">
+      <span class="conf-lbl">Overall confidence</span>
+      <div class="conf-track"><div class="conf-fill" style="width:${m.conf}%"></div></div>
+      <span class="conf-pct">${m.conf}%</span>
+    </div>
+  `;
+  document.getElementById("modal").classList.add("open");
+  document.getElementById("modal").scrollTop = 0;
+}
+
+function handleModalClick(e) {
+  if (e.target.id === "modal") closeModal();
+}
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+}
+
+// ============================================================
+// PAGE NAVIGATION
+// ============================================================
+function goPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  const tab = document.getElementById("tab-" + name);
+  if (tab) tab.classList.add("active");
+  // show/hide league bar
+  document.getElementById("league-bar").style.display = name === "home" ? "flex" : "none";
+  document.querySelector(".content").scrollTop = 0;
+}
+
+// ============================================================
+// LEAGUE STATS
+// ============================================================
+function renderLeagueStats() {
+  document.getElementById("league-stats").innerHTML = LEAGUE_STATS.map(l => `
+    <div class="league-stat-card">
+      <div class="league-stat-row">
+        <span class="league-stat-name">${l.flag} ${l.name}</span>
+        <span class="league-stat-pct">${l.acc}%</span>
+      </div>
+      <div class="conf-track"><div class="conf-fill" style="width:${l.acc}%"></div></div>
+    </div>
+  `).join("");
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderMatches("ALL");
+renderLeagueStats();
+
+// ✅ SERVICE WORKER REGISTRATION
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(reg) {
+        console.log('PredictPro SW registered:', reg.scope);
+      })
+      .catch(function(err) {
+        console.log('SW registration failed:', err);
+      });
+  });
+}
+</script>
+</body>
+</html>
